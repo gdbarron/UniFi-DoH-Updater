@@ -301,7 +301,8 @@ run_update() {
     ip_list=$(download_and_parse_lists)
 
     local total_ips
-    total_ips=$(echo "$ip_list" | grep -c . || echo 0)
+    total_ips=$(echo "$ip_list" | grep -c . 2>/dev/null || echo "0")
+    total_ips="${total_ips//[[:space:]]/}"
     log "Total unique IPs to block: $total_ips"
 
     if [ "$total_ips" -eq 0 ]; then
@@ -315,8 +316,11 @@ run_update() {
     ipv6_list=$(echo "$ip_list" | grep -E '^[0-9a-fA-F]*:' || true)
 
     local ipv4_count ipv6_count
-    ipv4_count=$(echo "$ipv4_list" | grep -c . || echo 0)
-    ipv6_count=$(echo "$ipv6_list" | grep -c . || echo 0)
+    ipv4_count=$(echo "$ipv4_list" | grep -c . 2>/dev/null || echo "0")
+    ipv6_count=$(echo "$ipv6_list" | grep -c . 2>/dev/null || echo "0")
+    # Trim whitespace for safe integer comparison
+    ipv4_count="${ipv4_count//[[:space:]]/}"
+    ipv6_count="${ipv6_count//[[:space:]]/}"
     log "IPv4 addresses: $ipv4_count, IPv6 addresses: $ipv6_count"
 
     # Convert to JSON arrays
@@ -414,7 +418,7 @@ if [ "${1:-}" = "--cron" ]; then
     # Write env vars to file for cron to source
     env | grep -E '^(UNIFI_|FIREWALL_|DOH_|IPV6_|DRY_|VERIFY_)' > /etc/environment 2>/dev/null || true
 
-    echo "$CRON_SCHEDULE /app/update-doh-blocklist.sh >> /var/log/doh-updater.log 2>&1" | crontab -
+    echo "$CRON_SCHEDULE /app/update-doh-blocklist.sh >> /proc/1/fd/1 2>&1" | crontab -
     log "Cron scheduled. Running initial update..."
     run_update
     log "Entering cron loop..."
