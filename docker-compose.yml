@@ -19,5 +19,3 @@ services:
       # Optionally override the default DoH lists:
       # - DOH_LISTS_V4=https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-ipv4.txt
       # - DOH_LISTS_V6=https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-ipv6.txt
-    volumes:
-      - ./logs:/var/log
