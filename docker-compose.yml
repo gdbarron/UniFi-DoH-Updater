@@ -1,0 +1,23 @@
+services:
+  doh-updater:
+    build: https://github.com/gdbarron/UniFi-DoH-Updater.git
+    container_name: unifi-doh-updater
+    restart: unless-stopped
+    command: ["--cron"]
+    environment:
+      - UNIFI_HOST=https://192.168.1.1
+      - UNIFI_API_KEY=${UNIFI_API_KEY}
+      # --- OR use username/password instead of API key ---
+      # - UNIFI_USER=admin
+      # - UNIFI_PASS=${UNIFI_PASS}
+      - UNIFI_SITE=default
+      - FIREWALL_GROUP=DoH Servers
+      - FIREWALL_GROUP_V6=DoH Servers IPv6
+      - CRON_SCHEDULE=0 4 * * *
+      - IPV6_ENABLED=false
+      - VERIFY_SSL=false
+      # Optionally override the default DoH lists:
+      # - DOH_LISTS_V4=https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-ipv4.txt
+      # - DOH_LISTS_V6=https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-ipv6.txt
+    volumes:
+      - ./logs:/var/log
