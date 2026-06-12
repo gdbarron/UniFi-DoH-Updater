@@ -115,8 +115,6 @@ For Synology NAS running DSM 7.2+ with Container Manager (the successor to the D
          - CRON_SCHEDULE=0 4 * * *
          - IPV6_ENABLED=true
          - VERIFY_SSL=false
-       volumes:
-         - ./logs:/var/log
    ```
 
    **`.env`**:
@@ -135,7 +133,12 @@ For Synology NAS running DSM 7.2+ with Container Manager (the successor to the D
 
 Container Manager pulls the pre-built image from GHCR and starts the container. No git or build tools needed on the NAS. It will keep it running and restart after NAS reboots.
 
-**Viewing logs**: Container Manager → select the container → **Log** tab, or check the mounted `logs/` volume in File Station.
+**Viewing logs**: Container Manager → select the container → **Log** tab. All output (including scheduled cron runs) goes to stdout/stderr.
+```bash
+# Or via SSH:
+docker logs unifi-doh-updater
+docker logs -f unifi-doh-updater  # follow
+```
 
 **Manual trigger**: Container Manager → select the container → **Terminal** → run:
 ```bash
