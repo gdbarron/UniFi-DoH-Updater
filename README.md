@@ -26,7 +26,7 @@ export UNIFI_PASS=yourpassword
 
 ## Docker (Scheduled)
 
-The `docker-compose.yml` builds directly from GitHub — no need to clone the full repo. You only need two files on your host:
+A pre-built image is published to GitHub Container Registry on every push to `main`. You only need two files on your host:
 
 1. Download [`docker-compose.yml`](docker-compose.yml)
 2. Create a `.env` file:
@@ -39,11 +39,11 @@ The `docker-compose.yml` builds directly from GitHub — no need to clone the fu
    docker compose up -d
    ```
 
-Docker clones the repo from GitHub at build time, builds the image, and starts the container. It runs the update daily at 4:00 AM by default (change `CRON_SCHEDULE` to adjust).
+The image is pulled from `ghcr.io/gdbarron/unifi-doh-updater:latest` — no build step, no git required. The container runs the update daily at 4:00 AM by default (change `CRON_SCHEDULE` to adjust).
 
 **To update to latest version**:
 ```bash
-docker compose build --no-cache && docker compose up -d
+docker compose pull && docker compose up -d
 ```
 
 ## Environment Variables
@@ -102,7 +102,7 @@ For Synology NAS running DSM 7.2+ with Container Manager (the successor to the D
    ```yaml
    services:
      doh-updater:
-       build: https://github.com/gdbarron/UniFi-DoH-Updater.git
+       image: ghcr.io/gdbarron/unifi-doh-updater:latest
        container_name: unifi-doh-updater
        restart: unless-stopped
        command: ["--cron"]
@@ -133,7 +133,7 @@ For Synology NAS running DSM 7.2+ with Container Manager (the successor to the D
 
 4. Click **Next** → review the summary → **Done** (check "Start after creation")
 
-Container Manager clones the repo from GitHub, builds the image locally, and starts the container. It will keep it running and restart after NAS reboots.
+Container Manager pulls the pre-built image from GHCR and starts the container. No git or build tools needed on the NAS. It will keep it running and restart after NAS reboots.
 
 **Viewing logs**: Container Manager → select the container → **Log** tab, or check the mounted `logs/` volume in File Station.
 
@@ -142,7 +142,10 @@ Container Manager clones the repo from GitHub, builds the image locally, and sta
 /app/update-doh-blocklist.sh
 ```
 
-**Updating to latest**: Container Manager → **Project** → select the project → **Action** → **Build & Restart**. This re-clones from GitHub and rebuilds.
+**Updating to latest**: Container Manager → **Project** → select the project → **Action** → **Stop**, then **Pull** the image, then **Start**. Or via SSH:
+```bash
+cd /docker/unifi-doh-updater && docker compose pull && docker compose up -d
+```
 
 ## How It Works
 

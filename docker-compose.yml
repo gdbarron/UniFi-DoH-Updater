@@ -1,6 +1,6 @@
 services:
   doh-updater:
-    build: https://github.com/gdbarron/UniFi-DoH-Updater.git
+    image: ghcr.io/gdbarron/unifi-doh-updater:latest
     container_name: unifi-doh-updater
     restart: unless-stopped
     command: ["--cron"]
